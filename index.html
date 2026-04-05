@@ -11,11 +11,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8f8f8; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8f8f8; margin: 0; padding: 0; }
         .tiktok-red { background-color: #FE2C55; }
-        .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .animate-slide-up { animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
     </style>
 </head>
 <body>
@@ -25,11 +24,10 @@
         const { useState } = React;
 
         function App() {
-            const [step, setStep] = useState('dashboard'); // dashboard, user_search, amount, processing, details_popup
-            const [username, setUsername] = useState('');
+            const [step, setStep] = useState('dashboard');
+            const [username, setUsername] = useState('lilymacedo11');
             const [amount, setAmount] = useState('25,000.00');
 
-            // --- CONSTANTS MATCHING YOUR IMAGES ---
             const DATA = {
                 balance: "31,399,000.00",
                 upcoming: "52,800.00",
@@ -38,20 +36,9 @@
                 requestId: "3690967545822"
             };
 
-            const handleTransferClick = () => setStep('user_search');
-            
-            const handleUserSubmit = () => {
-                if(username) setStep('amount');
-            };
-
-            const executeTransfer = () => {
-                setStep('processing');
-                setTimeout(() => setStep('details_popup'), 2000);
-            };
-
             // --- UI SCREENS ---
 
-            // 1. DASHBOARD
+            // 1. DASHBOARD WITH IN/OUT TRANSLATIONS
             if (step === 'dashboard') return (
                 <div className="max-w-[420px] mx-auto bg-white min-h-screen flex flex-col shadow-xl">
                     <header className="px-4 py-3 flex items-center border-b border-gray-100 sticky top-0 bg-white z-10">
@@ -61,6 +48,7 @@
                     </header>
 
                     <div className="p-4 space-y-4 bg-[#F8F8F8] flex-1">
+                        {/* Identity Verified Card */}
                         <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-start gap-3">
                             <i className="bi bi-shield-check text-blue-500 text-lg"></i>
                             <div>
@@ -69,6 +57,7 @@
                             </div>
                         </div>
 
+                        {/* Balance Card */}
                         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <div className="flex justify-between text-[11px] font-bold text-gray-400 mb-8 uppercase">
                                 <div className="text-left">Available rewards<br/><span className="text-black text-[13px]">USD{DATA.balance}</span></div>
@@ -78,25 +67,61 @@
                                 <p className="text-[12px] text-gray-400 mb-1">Available rewards</p>
                                 <h2 className="text-[36px] font-[900] tracking-tighter leading-none">{DATA.balance}</h2>
                             </div>
-                            <button onClick={handleTransferClick} className="w-full tiktok-red text-white py-3.5 rounded-lg font-bold text-[16px] active:opacity-90">Transfer</button>
+                            <button onClick={() => setStep('user_search')} className="w-full tiktok-red text-white py-3.5 rounded-lg font-bold text-[16px]">Transfer</button>
                             <button className="w-full bg-[#F1F1F2] text-black py-3.5 rounded-lg font-bold text-[16px] border border-gray-200 mt-3">Exchange</button>
                         </div>
 
+                        {/* Limit Card */}
                         <div className="bg-white p-4 rounded-xl border border-gray-100">
                             <p className="text-[11px] text-gray-400 font-bold uppercase mb-1">Daily transfer limit (Remain/Total)</p>
                             <p className="font-bold text-[15px]">{DATA.limit}</p>
                         </div>
 
+                        {/* TRANSACTIONS SECTION WITH IN AND OUT */}
                         <div className="pt-2">
-                            <h3 className="font-bold text-gray-900 mb-3 px-1">Transactions</h3>
-                            <div className="bg-white p-4 rounded-2xl border border-gray-100 flex justify-between items-center opacity-50">
-                                <div>
-                                    <p className="text-[10px] text-gray-400 font-bold">APRIL 2026</p>
-                                    <p className="font-bold text-gray-800">Transfer to TikTok</p>
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="font-bold text-gray-900">Transactions</h3>
+                                <div className="text-gray-400 text-xs font-bold uppercase flex items-center gap-1">All types <i className="bi bi-chevron-right"></i></div>
+                            </div>
+
+                            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                                {/* Table Headers */}
+                                <div className="flex px-4 py-3 bg-gray-50/50 border-b border-gray-100 text-[11px] font-bold text-gray-400 uppercase tracking-widest">
+                                    <div className="w-1/4">Date</div>
+                                    <div className="w-1/2 text-center">In</div>
+                                    <div className="w-1/4 text-right">Out</div>
                                 </div>
-                                <div className="text-right">
-                                    <p className="font-black text-gray-900">-USD25,000.00</p>
-                                    <p className="text-[10px] text-green-600 font-bold">Complete</p>
+
+                                {/* "OUT" Transaction (Clickable) */}
+                                <div 
+                                    onClick={() => setStep('details_popup')}
+                                    className="flex px-4 py-5 border-b border-gray-50 items-center cursor-pointer active:bg-gray-50"
+                                >
+                                    <div className="w-1/4">
+                                        <p className="text-[12px] font-bold text-gray-900">April</p>
+                                        <p className="text-[10px] text-gray-400">2026</p>
+                                    </div>
+                                    <div className="w-1/2 text-center">
+                                        <p className="text-gray-200">—</p>
+                                    </div>
+                                    <div className="w-1/4 text-right">
+                                        <p className="text-[14px] font-black text-gray-900">USD25,000.00</p>
+                                        <p className="text-[10px] text-green-600 font-bold">Complete</p>
+                                    </div>
+                                </div>
+
+                                {/* "IN" Transaction Example */}
+                                <div className="flex px-4 py-5 items-center opacity-60">
+                                    <div className="w-1/4">
+                                        <p className="text-[12px] font-bold text-gray-900">April</p>
+                                        <p className="text-[10px] text-gray-400">2026</p>
+                                    </div>
+                                    <div className="w-1/2 text-center">
+                                        <p className="text-[14px] font-black text-gray-900">USD31,399,000</p>
+                                    </div>
+                                    <div className="w-1/4 text-right">
+                                        <p className="text-gray-200">—</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -106,92 +131,62 @@
 
             // 2. USER SEARCH
             if (step === 'user_search') return (
-                <div className="max-w-[420px] mx-auto bg-white min-h-screen flex flex-col">
+                <div className="max-w-[420px] mx-auto bg-white min-h-screen">
                     <header className="px-4 py-3 flex items-center border-b border-gray-100">
                         <i className="bi bi-x-lg text-xl cursor-pointer" onClick={() => setStep('dashboard')}></i>
                         <h1 className="flex-1 text-center font-bold text-[17px] mr-6">Recipient</h1>
                     </header>
                     <div className="p-6 space-y-6">
-                        <p className="text-sm font-bold text-gray-500">Search TikTok Username</p>
-                        <div className="relative">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-gray-400">@</span>
-                            <input type="text" className="w-full bg-gray-100 p-4 pl-9 rounded-xl outline-none font-bold" placeholder="username" value={username} onChange={(e) => setUsername(e.target.value)} />
-                        </div>
-                        <button onClick={handleUserSubmit} disabled={!username} className="w-full tiktok-red text-white py-4 rounded-xl font-bold disabled:opacity-50">Continue</button>
+                        <input type="text" className="w-full bg-gray-100 p-4 rounded-xl outline-none font-bold" placeholder="TikTok Username" value={username} onChange={(e) => setUsername(e.target.value)} />
+                        <button onClick={() => setStep('amount')} className="w-full tiktok-red text-white py-4 rounded-xl font-bold">Next</button>
                     </div>
                 </div>
             );
 
             // 3. AMOUNT ENTRY
             if (step === 'amount') return (
-                <div className="max-w-[420px] mx-auto bg-white min-h-screen flex flex-col">
+                <div className="max-w-[420px] mx-auto bg-white min-h-screen">
                     <header className="px-4 py-3 flex items-center border-b border-gray-100">
                         <i className="bi bi-arrow-left text-xl cursor-pointer" onClick={() => setStep('user_search')}></i>
-                        <h1 className="flex-1 text-center font-bold text-[17px] mr-6">Transfer Amount</h1>
+                        <h1 className="flex-1 text-center font-bold text-[17px] mr-6">Amount</h1>
                     </header>
-                    <div className="p-8 text-center flex-1 flex flex-col">
-                        <p className="text-gray-400 font-bold text-sm mb-12">Sending to @{username}</p>
-                        <div className="mb-auto">
-                            <div className="flex items-center justify-center gap-2">
-                                <span className="text-3xl font-black">$</span>
-                                <input type="number" className="text-6xl font-[900] w-full text-center outline-none" value={amount.replace(/,/g, '')} onChange={(e) => setAmount(e.target.value)} />
-                            </div>
-                        </div>
-                        <button onClick={executeTransfer} className="w-full tiktok-red text-white py-4 rounded-xl font-bold text-lg">Send Transfer</button>
+                    <div className="p-8 text-center">
+                        <p className="text-gray-400 font-bold text-sm mb-12 uppercase">Transfer to @{username}</p>
+                        <input type="number" className="text-6xl font-black text-center outline-none w-full" value={amount.replace(/,/g, '')} onChange={(e) => setAmount(e.target.value)} />
+                        <button onClick={() => {setStep('processing'); setTimeout(()=>setStep('details_popup'), 1500)}} className="w-full tiktok-red text-white py-4 rounded-xl font-bold mt-20">Confirm</button>
                     </div>
                 </div>
             );
 
             // 4. PROCESSING
             if (step === 'processing') return (
-                <div className="max-w-[420px] mx-auto bg-white min-h-screen flex flex-col items-center justify-center p-10 text-center">
-                    <div className="w-14 h-14 border-[5px] border-gray-100 border-t-[#FE2C55] rounded-full animate-spin mb-6"></div>
-                    <h2 className="text-xl font-extrabold">Processing Transfer...</h2>
+                <div className="max-w-[420px] mx-auto bg-white min-h-screen flex items-center justify-center">
+                    <div className="w-12 h-12 border-4 border-gray-100 border-t-[#FE2C55] rounded-full animate-spin"></div>
                 </div>
             );
 
-            // 5. RECEIPT POPUP (EXACT MATCH)
+            // 5. RECEIPT POP-UP (EXACT MATCH)
             if (step === 'details_popup') return (
                 <div className="fixed inset-0 bg-black/60 z-50 flex justify-center items-end">
-                    <div className="w-full max-w-[420px] bg-white rounded-t-[35px] p-6 animate-slide-up shadow-2xl">
-                        <h2 className="text-[24px] font-[900] text-center mb-8 pt-2">Transfer details</h2>
-                        
-                        <div className="space-y-5 text-[15px]">
-                            <div className="flex justify-between gap-4">
-                                <span className="text-gray-400 leading-tight">LIVE rewards transfer to TikTok</span>
-                                <span className="font-extrabold text-right">@{username || 'lily macedo11'}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-gray-400">Amount</span>
-                                <span className="font-extrabold text-lg">USD {parseFloat(amount).toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-gray-400">Status</span>
-                                <span className="bg-[#418953] text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase">Withdrawal complete</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-gray-400">Payment method</span>
-                                <span className="font-extrabold">TikTok(@{username || 'lilymacedo11'})</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-gray-400">Service fee</span>
-                                <span className="font-extrabold">30.00 USD</span>
-                            </div>
+                    <div className="w-full max-w-[420px] bg-white rounded-t-[40px] p-6 animate-slide-up">
+                        <h2 className="text-[22px] font-black text-center mb-8 pt-2">Transfer details</h2>
+                        <div className="space-y-4 text-[14px]">
+                            <div className="flex justify-between"><span className="text-gray-400">LIVE rewards transfer to TikTok</span><span className="font-black text-right">@{username}</span></div>
+                            <div className="flex justify-between items-center"><span className="text-gray-400">Amount</span><span className="font-black text-lg">USD {amount}</span></div>
+                            <div className="flex justify-between items-center"><span className="text-gray-400">Status</span><span className="bg-[#418953] text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase">Withdrawal complete</span></div>
+                            <div className="flex justify-between"><span className="text-gray-400">Payment method</span><span className="font-black">TikTok(@{username})</span></div>
+                            <div className="flex justify-between"><span className="text-gray-400">Service fee</span><span className="font-black">30.00 USD</span></div>
                             <div className="flex justify-between items-center border-t border-gray-100 border-dashed pt-4">
                                 <span className="text-gray-400">Amount you receive</span>
-                                <span className="font-extrabold">{(parseFloat(amount.replace(/,/g, '')) - 30).toLocaleString('en-US', {minimumFractionDigits: 2})} USD</span>
+                                <span className="font-black">24,970.00 USD</span>
                             </div>
-                            <div className="flex justify-between items-center pt-2">
-                                <span className="text-gray-400">Date and time</span>
-                                <span className="font-extrabold">{DATA.date}</span>
-                            </div>
-                            <div className="flex justify-between items-center pt-2 border-t border-gray-100 pb-4">
+                            <div className="flex justify-between"><span className="text-gray-400">Date and time</span><span className="font-black">{DATA.date}</span></div>
+                            <div className="flex justify-between items-center border-t border-gray-100 pb-4 pt-2">
                                 <span className="text-gray-400">Request ID</span>
-                                <span className="font-extrabold tracking-tight">{DATA.requestId}</span>
+                                <span className="font-black tracking-tight">{DATA.requestId}</span>
                             </div>
                         </div>
-
-                        <button onClick={() => setStep('dashboard')} className="w-full tiktok-red text-white py-4 rounded-2xl font-extrabold text-lg mt-6 mb-6">Back to reward</button>
+                        <button onClick={() => setStep('dashboard')} className="w-full tiktok-red text-white py-4 rounded-2xl font-black text-lg mt-4 mb-6">Back to reward</button>
                     </div>
                 </div>
             );
