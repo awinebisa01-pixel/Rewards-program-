@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LIVE Rewards - TikTok Transfer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #000; margin: 0; padding: 0; }
+        .tiktok-red { background-color: #FE2C55; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function App() {
+            const [step, setStep] = useState('dashboard'); // dashboard, user_search, amount, processing, success
+            const [username, setUsername] = useState('');
+            const [foundUser, setFoundUser] = useState(null);
+            const [isSearching, setIsSearching] = useState(false);
+            const [amount, setAmount] = useState('');
+
+            // Data from your image
+            const wallet = {
+                balance: "31,399,000.00",
+                upcoming: "52,800.00",
+                limit: "588,000 / 10M"
+            };
+
+            // Simulates searching the TikTok database
+            useEffect(() => {
+                if (username.length > 2) {
+                    setIsSearching(true);
+                    const timer = setTimeout(() => {
+                        setFoundUser({
+                            name: username,
+                            handle: `@${username.toLowerCase().replace(/\s/g, '_')}`,
+                            followers: (Math.random() * 10).toFixed(1) + "M",
+                            img: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`
+                        });
+                        setIsSearching(false);
+                    }, 800);
+                    return () => clearTimeout(timer);
+                } else {
+                    setFoundUser(null);
+                }
+            }, [username]);
+
+            const handleFinalTransfer = () => {
+                setStep('processing');
+                setTimeout(() => setStep('success'), 2500);
+            };
+
+            // --- UI SCREENS ---
+
+            // 1. MAIN DASHBOARD
+            if (step === 'dashboard') return (
+                <div className="max-w-[430px] mx-auto bg-white min-h-screen flex flex-col shadow-2xl overflow-hidden">
+                    <div className="px-4 py-3 flex items-center border-b border-gray-100 bg-white sticky top-0 z-10">
+                        <i className="bi bi-chevron-left text-xl"></i>
+                        <h1 className="flex-1 text-center font-bold text-[17px]">LIVE rewards</h1>
+                        <i className="bi bi-question-circle text-xl"></i>
+                    </div>
+                    
+                    <div className="p-4 space-y-4 bg-[#F8F8F8] flex-1">
+                        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-start gap-3">
+                            <i className="bi bi-shield-check text-blue-500 text-lg"></i>
+                            <div>
+                                <p className="font-bold text-[14px]">Identity verified</p>
+                                <p className="text-[12px] text-gray-400">Your identity is verified. You can continue with transactions.</p>
+                            </div>
+                        </div>
+
+                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                            <div className="flex justify-between text-[11px] font-bold text-gray-400 mb-8 uppercase tracking-tight">
+                                <div className="text-left">Available rewards<br/><span className="text-black text-[13px]">USD{wallet.balance}</span></div>
+                                <div className="text-right">Upcoming rewards<br/><span className="text-black text-[13px] flex items-center justify-end"><span className="w-1.5 h-1.5 bg-red-500 rounded-full mr-1"></span>USD{wallet.upcoming}</span></div>
+                            </div>
+                            
+                            <div className="text-center mb-10">
+                                <p className="text-[12px] text-gray-400 mb-1">Available rewards</p>
+                                <h2 className="text-[36px] font-[900] tracking-tighter leading-none">{wallet.balance}</h2>
+                            </div>
+
+                            <div className="space-y-3">
+                                <button onClick={() => setStep('user_search')} className="w-full tiktok-red text-white py-3.5 rounded-lg font-bold text-[16px] active:scale-[0.98] transition-transform">Transfer</button>
+                                <button className="w-full bg-[#F1F1F2] text-black py-3.5 rounded-lg font-bold text-[16px] border border-gray-200">Exchange</button>
+                            </div>
+                        </div>
+
+                        <div className="bg-white p-4 rounded-xl border border-gray-100">
+                            <p className="text-[11px] text-gray-400 font-bold uppercase mb-1">Daily transfer limit (Remain/Total)</p>
+                            <p className="font-bold text-[15px]">{wallet.limit}</p>
+                        </div>
+                    </div>
+                </div>
+            );
+
+            // 2. TIKTOK USERNAME SEARCH
+            if (step === 'user_search') return (
+                <div className="max-w-[430px] mx-auto bg-white min-h-screen flex flex-col animate-in fade-in duration-300">
+                    <div className="px-4 py-3 flex items-center border-b border-gray-100">
+                        <i className="bi bi-x-lg text-xl cursor-pointer" onClick={() => setStep('dashboard')}></i>
+                        <h1 className="flex-1 text-center font-bold text-[17px] mr-6">Recipient</h1>
+                    </div>
+                    
+                    <div className="p-5 space-y-6">
+                        <div>
+                            <label className="text-[13px] font-bold text-gray-500 mb-2 block">TikTok Username</label>
+                            <div className="relative">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">@</span>
+                                <input 
+                                    type="text" 
+                                    placeholder="Enter username" 
+                                    className="w-full bg-gray-100 border-none rounded-xl py-4 pl-9 pr-4 font-semibold focus:ring-2 focus:ring-red-400 outline-none"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    autoFocus
+                                />
+                            </div>
+                        </div>
+
+                        {isSearching && (
+                            <div className="flex items-center justify-center py-4">
+                                <div className="w-6 h-6 border-2 border-gray-200 border-t-red-500 rounded-full animate-spin"></div>
+                            </div>
+                        )}
+
+                        {foundUser && !isSearching && (
+                            <div 
+                                onClick={() => setStep('amount')}
+                                className="bg-white border border-gray-100 p-4 rounded-2xl flex items-center gap-4 shadow-md cursor-pointer hover:border-red-200 transition-colors"
+                            >
+                                <img src={foundUser.img} className="w-14 h-14 rounded-full bg-gray-100 border border-gray-100" />
+                                <div className="flex-1">
+                                    <p className="font-bold text-gray-900">{foundUser.name}</p>
+                                    <p className="text-xs text-gray-400">{foundUser.handle} • {foundUser.followers} followers</p>
+                                </div>
+                                <i className="bi bi-chevron-right text-gray-300"></i>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+
+            // 3. ENTER AMOUNT
+            if (step === 'amount') return (
+                <div className="max-w-[430px] mx-auto bg-white min-h-screen flex flex-col animate-in slide-in-from-right duration-300">
+                    <div className="px-4 py-3 flex items-center border-b border-gray-100">
+                        <i className="bi bi-arrow-left text-xl cursor-pointer" onClick={() => setStep('user_search')}></i>
+                        <h1 className="flex-1 text-center font-bold text-[17px] mr-6">Transfer</h1>
+                    </div>
+                    
+                    <div className="p-8 flex-1 flex flex-col items-center">
+                        <img src={foundUser.img} className="w-20 h-20 rounded-full mb-2 shadow-lg" />
+                        <p className="font-bold text-lg mb-1">{foundUser.name}</p>
+                        <p className="text-xs text-gray-400 mb-12">Sending rewards to {foundUser.handle}</p>
+                        
+                        <div className="relative mb-auto text-center">
+                            <span className="text-3xl font-black absolute -left-8 top-1">$</span>
+                            <input 
+                                type="number" 
+                                placeholder="0.00" 
+                                className="text-6xl font-[900] text-center outline-none w-full bg-transparent tracking-tighter"
+                                value={amount}
+                                onChange={(e) => setAmount(e.target.value)}
+                                autoFocus
+                            />
+                        </div>
+
+                        <button 
+                            onClick={handleFinalTransfer}
+                            disabled={!amount || parseFloat(amount) <= 0}
+                            className={`w-full py-4 rounded-2xl font-bold text-lg mb-4 transition-all ${amount > 0 ? 'tiktok-red text-white shadow-xl scale-100' : 'bg-gray-100 text-gray-300 scale-95'}`}
+                        >
+                            Send Transfer
+                        </button>
+                    </div>
+                </div>
+            );
+
+            // 4. PROCESSING LOADER
+            if (step === 'processing') return (
+                <div className="max-w-[430px] mx-auto bg-white min-h-screen flex flex-col items-center justify-center p-10 text-center">
+                    <div className="w-14 h-14 border-[5px] border-gray-100 border-t-[#FE2C55] rounded-full animate-spin mb-6"></div>
+                    <h2 className="text-xl font-extrabold">Verifying Account...</h2>
+                    <p className="text-gray-400 mt-2 text-sm">Please wait while we secure this transaction on the TikTok network.</p>
+                </div>
+            );
+
+            // 5. SUCCESS VERIFICATION (RECEIPT)
+            if (step === 'success') return (
+                <div className="max-w-[430px] mx-auto bg-white min-h-screen p-6 flex flex-col justify-center animate-in zoom-in duration-500">
+                    <div className="bg-white rounded-[40px] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-gray-50 text-center relative overflow-hidden">
+                        {/* Success Background Glow */}
+                        <div className="absolute top-0 left-0 w-full h-2 bg-green-500"></div>
+                        
+                        <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i className="bi bi-check-circle-fill text-green-500 text-5xl"></i>
+                        </div>
+                        
+                        <h2 className="text-[26px] font-[900] mb-1">Transfer Verified</h2>
+                        <p className="text-gray-400 text-sm mb-10 font-medium tracking-tight">Sent to {foundUser.handle}</p>
+                        
+                        <div className="space-y-4 text-[15px] border-t border-dashed border-gray-200 pt-8 mb-10">
+                            <div className="flex justify-between"><span className="text-gray-400">Amount</span><span className="font-extrabold text-gray-900">USD {parseFloat(amount).toLocaleString()}</span></div>
+                            <div className="flex justify-between"><span className="text-gray-400">Recipient</span><span className="font-extrabold text-gray-900">{foundUser.name}</span></div>
+                            <div className="flex justify-between"><span className="text-gray-400">Status</span><span className="text-green-600 font-extrabold flex items-center"><i className="bi bi-patch-check-fill mr-1"></i>Verified</span></div>
+                        </div>
+                        
+                        <button 
+                            onClick={() => {setStep('dashboard'); setAmount(''); setUsername('');}} 
+                            className="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold text-lg active:scale-95 transition-transform"
+                        >
+                            Done
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
